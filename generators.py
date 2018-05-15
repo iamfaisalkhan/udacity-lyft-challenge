@@ -2,8 +2,9 @@
 # https://www.kaggle.com/kmader/data-preprocessing-and-unet-segmentation-gpu
 #
 
-from keras.applications.vgg16 import VGG16, preprocess_input
 import pandas as pd
+import numpy as np
+from keras.applications.vgg16 import VGG16, preprocess_input
 
 IMG_SIZE = (480, 480) # slightly smaller than vgg16 normally expects
 
@@ -26,8 +27,6 @@ img_gen_args = dict(samplewise_center=False,
                               fill_mode = 'nearest',
                               zoom_range = 0.05)
 
-
-
 rgb_gen = ImageDataGenerator(preprocessing_function = preprocess_input, **img_gen_args)
 lab_gen = ImageDataGenerator(preprocessing_function=process_label, **img_gen_args)
 
@@ -44,7 +43,7 @@ def flow_from_dataframeflow_fr (img_data_gen, in_df, path_col, y_col, seed = Non
     print('Reinserting dataframe: {} images'.format(in_df.shape[0]))
     return df_gen
 
-def  train_and_lab_gen_functrain_a (in_df, batch_size = 8, seed = None):
+def  train_and_lab_gen_functrain_a (in_df, image_size = IMG_SIZE, batch_size = 8, seed = None):
     if seed is None:
         seed = np.random.choice(range(1000))
     

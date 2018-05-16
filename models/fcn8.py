@@ -4,7 +4,8 @@ from keras.applications.vgg16 import VGG16
 from keras.layers import Dropout, Conv2D, Cropping2D, Conv2DTranspose, Add, Input, Reshape, Permute, Activation
 from keras.callbacks import ModelCheckpoint
 
-from utils import crop
+from models.utils import crop
+
 
 def model_fcn8(nClasses, image_shape=(480, 480, 3)):
   base_model = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)

@@ -18,6 +18,7 @@ apt-get update
 apt-get -y install cuda=9.0.176-1
 apt-get -y install libcudnn7-dev
 apt-get -y install libnccl-dev
+apt-get -y install tensorrt
 
 # Required for demo script! #
 pip install scikit-video

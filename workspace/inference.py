@@ -36,7 +36,7 @@ frame = 1
 
 t0 = time.time()
 
-MODEL_PATH = '../saved_models/fcn8_tf_1.7.pb'
+MODEL_PATH = '/data/fcn8_tf_1.7.pb'
 
 graph = load_graph(MODEL_PATH)
 
@@ -44,6 +44,8 @@ X = graph.get_tensor_by_name('import/input_1:0')
 Yhat = graph.get_tensor_by_name('import/activation_1/truediv:0')
 
 print ("Loaded model in ", (time.time() - t0), " seconds")
+# config = tf.ConfigProto()
+# config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
 with tf.Session(graph=graph) as session:
   for rgb_frame in video:

@@ -1,7 +1,6 @@
 from keras.layers import Cropping2D
 from keras.models import Model
 
-
 def crop( output1 , output2 , input  ):
   _, w1, h1, _ = Model( input  , output1 ).output_shape
   _, w2, h2, _ = Model(input, output2).output_shape

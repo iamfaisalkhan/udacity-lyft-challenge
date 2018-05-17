@@ -35,7 +35,7 @@ def model_fcn8(nClasses, image_shape=(480, 480, 3)):
   X = Conv2DTranspose(nClasses, kernel_size=(16, 16), strides=(8, 8), padding='same', name='block8_Deconv')(X)
 
   # X = (Reshape((-1, nClasses)))(X)
-  X = (Activation('softmax'))(X)
+  X = (Activation('softmax', name='y_'))(X)
 
   model = Model(inputs = [base_model.input], outputs=[X])
 

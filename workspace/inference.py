@@ -40,7 +40,7 @@ frame = 1
 
 t0 = time.time()
 
-MODEL_PATH = '/data/frozen_graph.pb'
+MODEL_PATH = '/data/fcn8_frozen_tf_1.7.pb'
 
 graph = load_graph(MODEL_PATH, True)
 

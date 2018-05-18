@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python
 
 import sys
 import json
@@ -7,16 +7,17 @@ import numpy as np
 from scipy import misc
 
 student_output = sys.argv[1]
+ground_truth = sys.argv[2]
 
 def decode(packet):
 	img = base64.b64decode(packet)
-	filename = '/home/workspace/Example/image.png'
+	filename = 'image.png'
 	with open(filename, 'wb') as f:
 			f.write(img)
 	result = misc.imread(filename)
 	return result
 
-with open('/home/workspace/Example/results.json') as json_data:
+with open(ground_truth) as json_data:
 	ans_data = json.loads(json_data.read())
 	json_data.close()
 

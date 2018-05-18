@@ -1,0 +1,1 @@
+ls -1 *.png | while read line; do pre=`echo $line | grep -Po 'F\K(\d\d)'`; post=`echo $line|grep -Po '\-\K(\d+)'`; new_index=`echo \($pre-61\)*100+$post|bc`; new_name=`printf "%05d.png" $new_index`; echo mv $line $new_name; done

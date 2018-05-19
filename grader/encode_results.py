@@ -17,18 +17,18 @@ if len(sys.argv) < 1:
   print ("Missing argument: python %s path", sys.argv[0])
 
 path = sys.argv[1]
-# files = glob.glob("%s/CameraRGB/*.png"%path)
-# files.sort()
+files = glob.glob("%s/CameraRGB/*.png"%path)
+files.sort()
 
-# tmp = imread(files[0])
-# m = len(files)
+tmp = imread(files[0])
+m = len(files)
 
-# data = np.empty((m, *tmp.shape))
+data = np.empty((m, *tmp.shape))
 
-# for ind, file in enumerate(files):
-#   data[ind] = imread(file)
+for ind, file in enumerate(files):
+  data[ind] = imread(file)
 
-# skvideo.io.vwrite("video.mp4", data)
+skvideo.io.vwrite("video.mp4", data)
 
 files = glob.glob("%s/CameraSeg/*.png"%path)
 files.sort()
@@ -38,6 +38,20 @@ frame = 1
 
 for ind, file in enumerate(files):
   img = imread(file)[:, :, 0]
+
+  lane_marking_pixels = (img == 6).nonzero()
+  # Set lane marking pixels to road (label is 7)
+  img[lane_marking_pixels] = 7
+
+  # Identify all vehicle pixels
+  vehicle_pixels = (img == 10).nonzero()
+  # Isolate vehicle pixels associated with the hood (y-position > 496)
+  hood_indices = (vehicle_pixels[0] >= 496).nonzero()[0]
+  hood_pixels = (vehicle_pixels[0][hood_indices], \
+                   vehicle_pixels[1][hood_indices])
+  # Set hood pixel labels to 0
+  img[hood_pixels] = 0
+
   car = np.zeros_like(img)
   road = np.zeros_like(img)
 

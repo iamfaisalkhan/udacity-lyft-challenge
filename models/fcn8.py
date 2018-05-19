@@ -7,7 +7,7 @@ from keras.callbacks import ModelCheckpoint
 from models.utils import crop
 
 
-def model_fcn8(nClasses, image_shape=(480, 480, 3)):
+def model_fcn8(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
   base_model = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
 
   for layer in base_model.layers:
@@ -18,9 +18,9 @@ def model_fcn8(nClasses, image_shape=(480, 480, 3)):
   block5_pool = base_model.get_layer('block5_pool').output
 
   X = Conv2D(4096, (7, 7),  padding='same', activation='relu', name='block6_conv1')(block5_pool)
-  X = Dropout(0.5, name='block6_dropout1')(X)
+  X = Dropout(keep_prob, name='block6_dropout1')(X)
   X = Conv2D(4096, (1, 1), activation='relu', padding='same', name='block6_conv2')(X)
-  X = Dropout(0.5, name='block6_dropout2')(X)
+  X = Dropout(keep_prob, name='block6_dropout2')(X)
   X = Conv2D(nClasses, (1, 1), padding='same', kernel_initializer='he_normal', name='block6_conv3')(X)
   X = Conv2DTranspose(nClasses, kernel_size=(4,4), strides=(2,2) , padding='same', use_bias=False, name='block6_deconv1')(X)
 

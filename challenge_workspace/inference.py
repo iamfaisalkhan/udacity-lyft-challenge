@@ -59,14 +59,18 @@ with tf.Session(graph=graph, config=config) as session:
   for i in range(0, m, BATCH_SIZE):
     cnt = 0
     for j in range(i, min(i+BATCH_SIZE, m)):
-        X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (480, 480)).astype(np.float64))
+        # X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (480, 480)).astype(np.float64))
+        X_arr[cnt, :, :, :] = cv2.resize(video[j], (480, 480)).astype(np.float64)
         cnt += 1
 
     result = session.run(Yhat, feed_dict={X : X_arr[0:cnt]})
+    
     for x in range(cnt):
       output = result[x].argmax(axis=2)
-      binary_car_result = cv2.resize((output == 1).astype(np.uint8), (800, 600))
-      binary_road_result = cv2.resize((output == 0).astype(np.uint8), (800, 600))
+      # binary_car_result = cv2.resize((output == 1).astype(np.uint8), (800, 600))
+      # binary_road_result = cv2.resize((output == 0).astype(np.uint8), (800, 600))
+      binary_car_result = (output == 1).astype(np.uint8)
+      binary_road_result = (output == 0).astype(np.uint8)
       answer_key[frame] = [encode(binary_car_result), encode(binary_road_result)]
       frame += 1
 

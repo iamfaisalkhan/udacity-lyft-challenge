@@ -8,7 +8,8 @@ if [ "$1" = "" ]
     exit
 fi
 
-VIDEO='./grader/video.mp4'
+# VIDEO='./grader/valid_data.mp4'
+VIDEO='./challenge_workspace/test_video_long.mp4'
 
 # Set frames constant for test video
 FRAMES=30.0
@@ -34,16 +35,17 @@ printf "\nYour program has been ran, now grading...\n"
 
 FPS=$(echo "scale=3; $FRAMES/($end_time - $start_time)" | bc)
 
-CODE_CMD='python ./challenge_workspace/score'
-TMP_LOCATION='./challenge_workspace/tester_data'
-TRUTH_LOCATION='./grader/truth_data'
+printf "\nYour program runs at $FPS FPS\n\n"
 
-PYTHON_CMD=$CODE_CMD$SPACE$TMP_LOCATION$SPACE$
+CODE_CMD='python ./grader/score'
+TMP_LOCATION='./challenge_workspace/tester_data'
+TRUTH_LOCATION='./grader/valid_truth.json'
+
+PYTHON_CMD=$CODE_CMD$SPACE$TMP_LOCATION$SPACE$TRUTH_LOCATION
+
 
 # # Run python program to calculate accuracy and store info for database
 ACC=$($PYTHON_CMD 2>&1)
 
-printf "\nYour program runs at $FPS FPS\n\n"
-
-# echo $ACC
+echo $ACC
 echo ' '

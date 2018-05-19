@@ -61,12 +61,12 @@ for frame in range(1,len(ans_data.keys())+1):
 # Generate results
 Car_precision = Car_TP/(Car_TP+Car_FP)/1.0
 Car_recall = Car_TP/(Car_TP+Car_FN)/1.0
-Car_beta = 2
-Car_F = (1+Car_beta**2) * ((Car_precision*Car_recall)/(Car_beta**2 * Car_precision + Car_recall))
+Car_beta = 2.0
+Car_F = (1+Car_beta**2) * ((Car_precision*Car_recall)/(Car_beta**2.0 * Car_precision + Car_recall))
 Road_precision = Road_TP/(Road_TP+Road_FP)/1.0
 Road_recall = Road_TP/(Road_TP+Road_FN)/1.0
 Road_beta = 0.5
-Road_F = (1+Road_beta**2) * ((Road_precision*Road_recall)/(Road_beta**2 * Road_precision + Road_recall))
+Road_F = (1+Road_beta**2.0) * ((Road_precision*Road_recall)/(Road_beta**2.0 * Road_precision + Road_recall))
 
 print ("Car F score: %05.3f  | Car Precision: %05.3f  | Car Recall: %05.3f  |\n\
 Road F score: %05.3f | Road Precision: %05.3f | Road Recall: %05.3f | \n\

@@ -2,11 +2,8 @@ import os
 import keras
 import keras.backend as K
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint
-
-from models.fcn8 import model_fcn8
-from generators import train_and_lab_gen_func
-from load_data import load_data
+from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
+from keras.optimizers import Adam
 
 class TFCheckpointCallback(keras.callbacks.Callback):
   def __init__(self, saver, sess):
@@ -17,13 +14,18 @@ class TFCheckpointCallback(keras.callbacks.Callback):
     self.saver.save(self.sess, 'freeze/checkpoint.ckpt', global_step=epoch)
 
 
-def train_nn():
-  train_df, dev_df = load_data('./data')
-  weight_path = "{}_weights.best.hdf5".format('fcn8_vgg16')
+def train_nn(model,
+            train_gen, 
+            valid_gen, 
+            steps_per_epoch, 
+            validation_steps, 
+            output_path = './output',
+            epochs = 20,
+            workers = 4,
+            le=1e-4):
 
-  model = model_fcn8(3)
-  if os.path.exists(weight_path):
-    model.load_weights(weight_path)
+  weight_path = "{}/{}.hdf5".format(output_path, 'model')
+  freeze_path = "{}/freeze".format(output_path)
     
   sess = K.get_session()
 
@@ -31,37 +33,34 @@ def train_nn():
   tf_saver = tf.train.Saver()
   tfckptcb = TFCheckpointCallback(tf_saver, sess)
 
+  opt = Adam(lr=1e-4)
   model.compile(loss='categorical_crossentropy',
-                optimizer='adam',
+                optimizer=opt,
                 metrics=['accuracy'])
 
-
+  # Call backs
+  earlystop = EarlyStopping(monitor="val_loss", mode="min", patience=10)
   checkpoint = ModelCheckpoint(weight_path, monitor='val_loss', verbose=1,
                                save_best_only=True, mode='min', save_weights_only=True)
+  reducelr = ReduceLROnPlateau(monitor='loss', factor=0.8, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=5, min_lr=0.0001)
 
-  batch_size = 16
-  train_and_lab_gen = train_and_lab_gen_func(train_df, batch_size=batch_size)
-  valid_and_lab_gen = train_and_lab_gen_func(dev_df, batch_size=batch_size)
-  callbacks_list = [checkpoint, tfckptcb]
+  callbacks_list = [checkpoint, tfckptcb, earlystop, reducelr]
+  history = model.fit_generator(train_gen,
+                                steps_per_epoch=steps_per_epoch,
+                                validation_data=valid_gen,
+                                validation_steps=validation_steps,
+                                epochs=epochs,
+                                workers=workers,
+                                use_multiprocessing=True,
+                                callbacks=callbacks_list
+                                )
 
-  # print ([print(n.name) for n in sess.graph.as_graph_def().node])
-  print([print(n.name) for n in tf.get_default_graph().as_graph_def().node])
+  tf.train.write_graph(tf_graph.as_graph_def(),
+                       freeze_path, 'graph.pbtxt', as_text=True)
+  tf.train.write_graph(tf_graph.as_graph_def(),
+                       freeze_path, 'graph.pb', as_text=False)
 
-  # history = model.fit_generator(train_and_lab_gen,
-  #                               steps_per_epoch=800 // batch_size,
-  #                               validation_data=valid_and_lab_gen,
-  #                               validation_steps=200 // batch_size,
-  #                               epochs=20,
-  #                               workers=4,
-  #                               use_multiprocessing=True,
-  #                               callbacks=callbacks_list
-  #                               )
-
-  # tf.train.write_graph(tf_graph.as_graph_def(),
-  #                      'freeze', 'graph.pbtxt', as_text=True)
-  # tf.train.write_graph(tf_graph.as_graph_def(),
-  #                      'freeze', 'graph.pb', as_text=False)
-
+  return 
 
 if __name__ == '__main__':
   train_nn()

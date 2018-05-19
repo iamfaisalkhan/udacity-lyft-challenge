@@ -22,7 +22,7 @@ def train_nn(model,
             output_path = './output',
             epochs = 20,
             workers = 4,
-            le=1e-4):
+            lr=1e-4):
 
   weight_path = "{}/{}.hdf5".format(output_path, 'model')
   freeze_path = "{}/freeze".format(output_path)
@@ -33,7 +33,7 @@ def train_nn(model,
   tf_saver = tf.train.Saver()
   tfckptcb = TFCheckpointCallback(tf_saver, sess)
 
-  opt = Adam(lr=1e-4)
+  opt = Adam(lr=lr)
   model.compile(loss='categorical_crossentropy',
                 optimizer=opt,
                 metrics=['accuracy'])
@@ -60,7 +60,7 @@ def train_nn(model,
   tf.train.write_graph(tf_graph.as_graph_def(),
                        freeze_path, 'graph.pb', as_text=False)
 
-  return 
+  return model
 
 if __name__ == '__main__':
   train_nn()

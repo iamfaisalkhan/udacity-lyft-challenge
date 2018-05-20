@@ -29,7 +29,7 @@ MODEL_PATH = './saved_models/fcn8_extended/model.hdf5'
 K.set_learning_phase(0)
 model = load_model(MODEL_PATH)
 
-BATCH_SIZE=16
+BATCH_SIZE=32
 
 X_arr = np.zeros((BATCH_SIZE, 480, 480, 3), dtype=np.float64)
 
@@ -37,6 +37,7 @@ m = video.shape[0]
 for i in range(0, m, BATCH_SIZE):
   cnt = 0
   for j in range(i, min(i+BATCH_SIZE, m)):
+    video[j] = cv2.cvtColor(video[j], cv2.COLOR_RGB2BGR)
     X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (480, 480)).astype(np.float64))
     cnt += 1
 

@@ -11,13 +11,14 @@ from keras.preprocessing.image import ImageDataGenerator
 def preprocess_label(lbl):
   # Identify lane marking pixels (label is 6)
   lane_marking_pixels = (lbl[:,:,0] == 6).nonzero()
+
   # Set lane marking pixels to road (label is 7)
   lbl[lane_marking_pixels] = 7
 
   # Identify all vehicle pixels
   vehicle_pixels = (lbl[:,:,0] == 10).nonzero()
   # Isolate vehicle pixels associated with the hood (y-position > 496)
-  hood_indices = (vehicle_pixels[0] >= 400).nonzero()[0]
+  hood_indices = (vehicle_pixels[0] >= 496).nonzero()[0]
   hood_pixels = (vehicle_pixels[0][hood_indices], \
                    vehicle_pixels[1][hood_indices])
   # Set hood pixel labels to 0
@@ -34,16 +35,20 @@ def preprocess_label(lbl):
 img_gen_args = dict(samplewise_center=False, 
                     samplewise_std_normalization=False, 
                     horizontal_flip = True, 
-                    vertical_flip = False, 
-                    height_shift_range = 0.1, 
-                    width_shift_range = 0.1, 
-                    rotation_range = 3, 
-                    shear_range = 0.01,
-                    fill_mode = 'nearest',
-                    zoom_range = 0.05)
+                    vertical_flip = False,
+                    )
+
+                    # height_shift_range = 0.1)
+                    # width_shift_range = 0.1,
+                    # rotation_range = 3,
+                    # shear_range = 0.01,
+                    # fill_mode = 'nearest',
+                    # zoom_range = 0.05)
 
 rgb_gen = ImageDataGenerator(preprocessing_function = preprocess_input, **img_gen_args)
 lab_gen = ImageDataGenerator(preprocessing_function = preprocess_label, **img_gen_args)
+# lab_gen = ImageDataGenerator(preprocessing_function = preprocess_label)
+
 
 def flow_from_dataframe(img_data_gen, in_df, path_col, y_col, seed = None, **dflow_args):
   base_dir = os.path.dirname(in_df[path_col].values[0])    
@@ -89,6 +94,5 @@ def  train_and_lab_gen_func (in_df, image_size = (480, 480), target_size = (480,
       x_new[i] = cv2.resize(x[i], (target_size[1], target_size[0]))
       y_new[i, :, :, :] = cv2.resize(y[i], (target_size[1], target_size[0]))
       i += 1
-
     yield x_new, y_new
         

@@ -23,7 +23,7 @@ answer_key = {}
 frame = 1
 
 
-MODEL_PATH = './saved_models/unet/model_saved.h5'
+MODEL_PATH = '/data/fcn_weighted_model.h5'
 
 
 K.set_learning_phase(0)
@@ -45,8 +45,8 @@ for i in range(0, m, BATCH_SIZE):
 
   for x in range(cnt):
     output = result[x].argmax(axis=2)
-    binary_car_result = cv2.resize((output == 1).astype(np.uint8), (800, 600))
-    binary_road_result = cv2.resize((output == 0).astype(np.uint8), (800, 600))
+    binary_car_result = cv2.resize((output == 0).astype(np.uint8), (800, 600))
+    binary_road_result = cv2.resize((output == 1).astype(np.uint8), (800, 600))
     answer_key[frame] = [encode(binary_car_result), encode(binary_road_result)]
     frame += 1
 

@@ -26,8 +26,8 @@ def preprocess_label(lbl):
   # Return the preprocessed label image 
 
   new_lbl = np.zeros_like(lbl)
-  new_lbl[:, :, 0] = (lbl[:, :, 0] == 7).astype(np.uint8)
-  new_lbl[:, :, 1] = (lbl[:, :, 0] == 10).astype(np.uint8)
+  new_lbl[:, :, 0] = (lbl[:, :, 0] == 10).astype(np.uint8)
+  new_lbl[:, :, 1] = (lbl[:, :, 0] == 7).astype(np.uint8)
   new_lbl[:, :, 2] = np.invert(np.logical_or(new_lbl[:, :, 0], new_lbl[:, :, 1])).astype(np.uint8)
     
   return new_lbl
@@ -43,7 +43,7 @@ img_gen_args = dict(samplewise_center=False,
                               fill_mode = 'nearest',
                               zoom_range = 0.05)
 
-rgb_gen = ImageDataGenerator(**img_gen_args)
+rgb_gen = ImageDataGenerator(preprocessing_function=preprocess_input, **img_gen_args)
 lab_gen = ImageDataGenerator(preprocessing_function = preprocess_label, **img_gen_args)
 
 def flow_from_dataframe(img_data_gen, in_df, path_col, y_col, seed = None, **dflow_args):

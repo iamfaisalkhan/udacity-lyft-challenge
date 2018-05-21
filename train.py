@@ -3,8 +3,38 @@ import keras
 import keras.backend as K
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
-from keras.utils.training_utils import multi_gpu_model
 from keras.optimizers import Adam
+
+smooth = 1.
+def dice_coef(y_true, y_pred):
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = K.sum(y_true_f * y_pred_f)
+    return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
+
+def dice_coef_loss(y_true, y_pred):
+    return -dice_coef(y_true, y_pred)
+
+
+def jaccard_distance_loss(y_true, y_pred, smooth=100):
+  """
+  Jaccard = (|X & Y|)/ (|X|+ |Y| - |X & Y|)
+          = sum(|A*B|)/(sum(|A|)+sum(|B|)-sum(|A*B|))
+
+  The jaccard distance loss is usefull for unbalanced datasets. This has been
+  shifted so it converges on 0 and is smoothed to avoid exploding or disapearing
+  gradient.
+
+  Ref: https://en.wikipedia.org/wiki/Jaccard_index
+
+  @url: https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96
+  @author: wassname
+  """
+  intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
+  sum_ = K.sum(K.abs(y_true) + K.abs(y_pred), axis=-1)
+  jac = (intersection + smooth) / (sum_ - intersection + smooth)
+  return (1 - jac) * smooth
+
 
 class TFCheckpointCallback(keras.callbacks.Callback):
   def __init__(self, saver, sess, path):
@@ -25,8 +55,8 @@ def train_nn(model,
             batch_size = 16,
             epochs = 20,
             workers = 4,
-            lr=1e-4,
             verbose = 2,
+            lr=1e-4,
             gpus = 1):
 
   weight_path = "{}/{}.hdf5".format(output_path, 'model')
@@ -38,16 +68,8 @@ def train_nn(model,
   tf_saver = tf.train.Saver()
   tfckptcb = TFCheckpointCallback(tf_saver, sess, output_path)
 
-  if gpus > 1:
-    model = multi_gpu_model(model, gpus)
-
-  opt = Adam(lr=lr)
-  model.compile(loss='categorical_crossentropy',
-                optimizer=opt,
-                metrics=['accuracy'])
-
   # Call backs
-  earlystop = EarlyStopping(monitor="val_loss", mode="min", patience=10)
+  earlystop = EarlyStopping(monitor="val_loss", mode="min", patience=20)
   checkpoint = ModelCheckpoint(weight_path, monitor='val_loss', verbose=1,
                                save_best_only=True, mode='min', save_weights_only=True)
   reducelr = ReduceLROnPlateau(monitor='loss', factor=0.8, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=5, min_lr=0.0001)
@@ -68,7 +90,7 @@ def train_nn(model,
   tf.train.write_graph(tf_graph.as_graph_def(),
                        freeze_path, 'graph.pb', as_text=False)
 
-  return model
+  return history
 
 if __name__ == '__main__':
   train_nn()

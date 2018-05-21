@@ -33,22 +33,18 @@ def preprocess_label(lbl):
   return new_lbl
 
 img_gen_args = dict(samplewise_center=False, 
-                    samplewise_std_normalization=False, 
-                    horizontal_flip = True, 
-                    vertical_flip = False,
-                    )
+                              samplewise_std_normalization=False, 
+                              horizontal_flip = True, 
+                              vertical_flip = False, 
+                              height_shift_range = 0.1, 
+                              width_shift_range = 0.1, 
+                              rotation_range = 3, 
+                              shear_range = 0.01,
+                              fill_mode = 'nearest',
+                              zoom_range = 0.05)
 
-                    # height_shift_range = 0.1)
-                    # width_shift_range = 0.1,
-                    # rotation_range = 3,
-                    # shear_range = 0.01,
-                    # fill_mode = 'nearest',
-                    # zoom_range = 0.05)
-
-rgb_gen = ImageDataGenerator(preprocessing_function = preprocess_input, **img_gen_args)
+rgb_gen = ImageDataGenerator(**img_gen_args)
 lab_gen = ImageDataGenerator(preprocessing_function = preprocess_label, **img_gen_args)
-# lab_gen = ImageDataGenerator(preprocessing_function = preprocess_label)
-
 
 def flow_from_dataframe(img_data_gen, in_df, path_col, y_col, seed = None, **dflow_args):
   base_dir = os.path.dirname(in_df[path_col].values[0])    

@@ -23,7 +23,7 @@ answer_key = {}
 frame = 1
 
 
-MODEL_PATH = './saved_models/fcn8_extended/model.hdf5'
+MODEL_PATH = './saved_models/unet/model_saved.h5'
 
 
 K.set_learning_phase(0)

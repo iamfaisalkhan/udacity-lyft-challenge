@@ -8,7 +8,7 @@ if [ "$1" = "" ]
     exit
 fi
 
-# VIDEO='./challenge_workspace/test_video_long.mp4'
+#VIDEO='./challenge_workspace/test_video_long.mp4'
 # VIDEO='./grader/valid_data.mp4'
 VIDEO='./grader/test_data.mp4'
 

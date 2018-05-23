@@ -95,7 +95,7 @@ def train_nn(model,
   tfckptcb = TFCheckpointCallback(tf_saver, sess, output_path)
 
   # Call backs
-  earlystop = EarlyStopping(monitor="val_loss", mode="min", patience=20)
+  earlystop = EarlyStopping(monitor="val_loss", mode="min", patience=30)
   checkpoint = ModelCheckpoint(weight_path, monitor='val_loss', verbose=1,
                                save_best_only=True, mode='min', save_weights_only=True)
   reducelr = ReduceLROnPlateau(monitor='loss', factor=0.8, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=5, min_lr=0.0001)

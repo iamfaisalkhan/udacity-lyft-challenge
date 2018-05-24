@@ -39,13 +39,15 @@ answer_key = {}
 # Frame numbering starts at 1
 frame = 1
 
-MODEL_PATH = '/data/fcn8VGG16LowRes_opt.pb'
+#MODEL_PATH = '/data/fcn8VGG16LowRes_opt.pb'
+MODEL_PATH = './saved_models/segnet_extended/model_saved.h5.pb'
 
 graph = load_graph(MODEL_PATH, True)
 
 
-X = graph.get_tensor_by_name('input_1:0')
-Yhat = graph.get_tensor_by_name('y_/truediv:0')
+X = graph.get_tensor_by_name('input_2:0')
+#Yhat = graph.get_tensor_by_name('y_/truediv:0')
+Yhat = graph.get_tensor_by_name('activation_52/truediv:0')
 pred = tf.argmax(Yhat, axis=-1, output_type=tf.int32)
 final = tf.image.resize_images(tf.expand_dims(pred, -1), [600, 800])
 
@@ -61,7 +63,7 @@ with tf.Session(graph=graph, config=config) as session:
   for i in range(0, m, BATCH_SIZE):
     cnt = 0
     for j in range(i, min(i+BATCH_SIZE, m)):
-        X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (384, 384)).astype(np.float32))
+        X_arr[cnt, :, :, :] = cv2.resize(video[j], (384, 384))
         cnt += 1
 
     result = session.run(final, feed_dict={X : X_arr[0:cnt]})

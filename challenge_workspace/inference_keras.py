@@ -27,12 +27,10 @@ answer_key = {}
 # Frame numbering starts at 1
 frame = 1
 
-# MODEL_PATH = './saved_models/fcn8_extended_training/model_saved.h5'
-# MODEL_PATH = './saved_models/fcn8LowRes/model_saved.h5'
-MODEL_PATH = './saved_models/segnet_extended/model_saved.h5'
+MODEL_PATH = '/data/model_saved.h5'
 
 K.set_learning_phase(0)
-model = load_model('./saved_models/segnet_extended/model_saved.h5',
+model = load_model('./saved_models/segnet_extended/segnetExt.h5',
                    {'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
                     'MaxUnpooling2D' : MaxUnpooling2D
                    })

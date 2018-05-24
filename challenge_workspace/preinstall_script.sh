@@ -32,5 +32,5 @@ pip install tensorflow-gpu==1.7.0
 # wget https://storage.googleapis.com/fkhan-udacity/fcn8_frozen_tf_1.7.pb
 #wget https://storage.googleapis.com/fkhan-udacity/fcn_weighted_model.h5
 
-wget https://storage.googleapis.com/fkhan-udacity/fcn8VGG16LowRes_opt.pb
-mv fcn8VGG16LowRes_opt.pb /data/
+# wget https://storage.googleapis.com/fkhan-udacity/fcn8VGG16LowRes_opt.pb
+# mv fcn8VGG16LowRes_opt.pb /data/

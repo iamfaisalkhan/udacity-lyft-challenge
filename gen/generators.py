@@ -5,8 +5,6 @@ import os
 import cv2
 import pandas as pd
 import numpy as np
-from keras.applications.vgg16 import VGG16, preprocess_input
-from keras.preprocessing.image import ImageDataGenerator
 
 def preprocess_label(lbl):
   # Identify lane marking pixels (label is 6)
@@ -32,23 +30,6 @@ def preprocess_label(lbl):
     
   return new_lbl
 
-img_gen_args = dict(samplewise_center=False, 
-                              samplewise_std_normalization=False, 
-                              horizontal_flip = True, 
-                              vertical_flip = False, 
-                              height_shift_range = 0.1, 
-                              width_shift_range = 0.1, 
-                              rotation_range = 3, 
-                              shear_range = 0.01,
-                              fill_mode = 'nearest',
-                              zoom_range = 0.05)
-
-rgb_gen = ImageDataGenerator(preprocessing_function=preprocess_input, **img_gen_args)
-lab_gen = ImageDataGenerator(preprocessing_function = preprocess_label, **img_gen_args)
-
-rgb_gen2 = ImageDataGenerator(preprocessing_function=preprocess_input)
-lab_gen2 = ImageDataGenerator(preprocessing_function = preprocess_label)
-
 def flow_from_dataframe(img_data_gen, in_df, path_col, y_col, seed = None, **dflow_args):
   base_dir = os.path.dirname(in_df[path_col].values[0])    
   print('## Ignore next message from keras, values are replaced anyways')
@@ -62,7 +43,7 @@ def flow_from_dataframe(img_data_gen, in_df, path_col, y_col, seed = None, **dfl
   print('Reinserting dataframe: {} images'.format(in_df.shape[0]))
   return df_gen
 
-def  train_and_lab_gen_func (in_df, image_size = (480, 480), target_size = (480, 480), batch_size = 8, seed = None):
+def  gen_func(in_df, rgb_gen, lab_gen, image_size = (480, 480), target_size = (480, 480), batch_size = 8, seed = None):
   if seed is None:
       seed = np.random.choice(range(1000))
   
@@ -95,35 +76,3 @@ def  train_and_lab_gen_func (in_df, image_size = (480, 480), target_size = (480,
       i += 1
     yield x_new, y_new
 
-def test_and_lab_gen_func(in_df, image_size=(480, 480), target_size=(480, 480), batch_size=8, seed=None):
-  if seed is None:
-    seed = np.random.choice(range(1000))
-
-  test_rgb_gen = flow_from_dataframe(rgb_gen2,
-                                      in_df,
-                                      path_col='image',
-                                      y_col='id',
-                                      color_mode='rgb',
-                                      target_size=image_size,
-                                      batch_size=batch_size,
-                                      seed=seed)
-
-  test_lab_gen = flow_from_dataframe(lab_gen2,
-                                      in_df,
-                                      path_col='label',
-                                      y_col='id',
-                                      target_size=image_size,
-                                      color_mode='rgb',
-                                      batch_size=batch_size,
-                                      seed=seed)
-
-  for (x, _), (y, _) in zip(test_rgb_gen, test_lab_gen):
-    m = x.shape[0]
-    x_new = np.zeros((m, target_size[0], target_size[1], x.shape[-1]))
-    y_new = np.zeros((m, target_size[0], target_size[1], x.shape[-1]))
-    i = 0
-    for i in range(m):
-      x_new[i] = cv2.resize(x[i], (target_size[1], target_size[0]))
-      y_new[i, :, :, :] = cv2.resize(y[i], (target_size[1], target_size[0]))
-      i += 1
-    yield x_new, y_new

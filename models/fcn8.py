@@ -10,8 +10,8 @@ from models.utils import crop
 def model_fcn8(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
   base_model = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
 
-  # for layer in base_model.layers:
-  #   layer.trainable = False
+  for layer in base_model.layers:
+    layer.trainable = False
 
   block3_pool = base_model.get_layer('block3_pool').output
   block4_pool = base_model.get_layer('block4_pool').output

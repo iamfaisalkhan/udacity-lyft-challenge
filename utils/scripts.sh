@@ -13,3 +13,21 @@ fold_batch_norms
 fold_old_batch_norms
 fuse_resize_and_conv
 strip_unused_nodes'
+
+
+
+bazel build tensorflow/tools/graph_transforms:transform_graph
+~/Development/tensorflow/bazel-bin/tensorflow/tools/graph_transforms/transform_graph \
+--in_graph=./saved_models/fcn8LowRes/fcn8VGG16LowRes.pb \
+--out_graph=./saved_models/fcn8LowRes/fcn8VGG16LowRes_opt.pb \
+--inputs='input_1' \
+--outputs='y_/truediv' \
+--transforms='
+  strip_unused_nodes(type=float, shape="1,384,384,3")
+  remove_nodes(op=Identity, op=CheckNumerics)
+  fold_constants(ignore_errors=true)
+  fold_batch_norms
+  fold_old_batch_norms
+  fuse_resize_and_conv
+  strip_unused_nodes
+  '

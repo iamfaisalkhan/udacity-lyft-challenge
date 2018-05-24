@@ -4,6 +4,11 @@ from PIL import Image
 from io import BytesIO, StringIO
 from keras.models import Model, load_model
 from keras.applications.vgg16 import  preprocess_input
+
+sys.path.append('./')
+
+from models.segnet_custom_layers import MaxPoolingWithArgmax2D, MaxUnpooling2D
+
 import keras.backend as K
 
 file = sys.argv[-1]
@@ -22,21 +27,28 @@ answer_key = {}
 # Frame numbering starts at 1
 frame = 1
 
-MODEL_PATH = './saved_models/fcn8_weighted/fcn_weighted_model.h5'
+# MODEL_PATH = './saved_models/fcn8_extended_training/model_saved.h5'
+# MODEL_PATH = './saved_models/fcn8LowRes/model_saved.h5'
+MODEL_PATH = './saved_models/segnet_extended/model_saved.h5'
 
 K.set_learning_phase(0)
-model = load_model(MODEL_PATH)
+model = load_model('./saved_models/segnet_extended/model_saved.h5',
+                   {'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
+                    'MaxUnpooling2D' : MaxUnpooling2D
+                   })
 
+# model = load_model(MODEL_PATH)
+#
 BATCH_SIZE=32
 
-X_arr = np.zeros((BATCH_SIZE, 480, 480, 3), dtype=np.float64)
+X_arr = np.zeros((BATCH_SIZE, 384, 384, 3), dtype=np.float64)
 
 m = video.shape[0]
 for i in range(0, m, BATCH_SIZE):
   cnt = 0
   for j in range(i, min(i+BATCH_SIZE, m)):
     video[j] = cv2.cvtColor(video[j], cv2.COLOR_RGB2BGR)
-    X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (480, 480)).astype(np.float64))
+    X_arr[cnt, :, :, :] = cv2.resize(video[j], (384, 384)).astype(np.float64)
     cnt += 1
 
   result = model.predict(X_arr)

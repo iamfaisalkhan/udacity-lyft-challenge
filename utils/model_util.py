@@ -5,6 +5,7 @@
 __author__ = "Faisal Khan"
 
 import argparse
+import sys
 from pathlib import Path
 
 import tensorflow as tf
@@ -12,6 +13,10 @@ from keras.models import load_model
 from keras import backend as K
 from tensorflow.python.framework import graph_util, graph_io
 from tensorflow.tools.graph_transforms import TransformGraph
+
+sys.path.append('./')
+from models.segnet_custom_layers import MaxPoolingWithArgmax2D, MaxUnpooling2D
+
 
 def load_graph(graph_file, use_xla=False):
     jit_level = 0
@@ -34,7 +39,10 @@ def optimize(model_file, output_path, output_model_file, output_graph_def=False)
   model = None
   try:
     print (model_file)
-    model = load_model(model_file)
+    model = load_model(model_file,
+                   {'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
+                    'MaxUnpooling2D' : MaxUnpooling2D
+                   })
   except ValueError as err:
     print('Model probably saved with only weights')
     raise err

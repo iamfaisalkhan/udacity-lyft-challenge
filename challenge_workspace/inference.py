@@ -12,10 +12,10 @@ file = sys.argv[-1]
 
 # Define encoder function
 def encode(array):
-	pil_img = Image.fromarray(array)
-	buff = BytesIO()
-	pil_img.save(buff, format="PNG")
-	return base64.b64encode(buff.getvalue()).decode("utf-8")
+  pil_img = Image.fromarray(array)
+  buff = BytesIO()
+  pil_img.save(buff, format="PNG")
+  return base64.b64encode(buff.getvalue()).decode("utf-8")
 
 def load_graph(graph_file, use_xla=False):
     jit_level = 0
@@ -39,31 +39,31 @@ answer_key = {}
 # Frame numbering starts at 1
 frame = 1
 
-MODEL_PATH = './out_graph.pb'
-# MODEL_PATH = './saved_models/fcn8_weighted/fcn_weighted_model.h5.pb '
+MODEL_PATH = '/data/fcn8VGG16LowRes_opt.pb'
 
 graph = load_graph(MODEL_PATH, True)
 
 
-X = graph.get_tensor_by_name('input_2:0')
+X = graph.get_tensor_by_name('input_1:0')
 Yhat = graph.get_tensor_by_name('y_/truediv:0')
 pred = tf.argmax(Yhat, axis=-1, output_type=tf.int32)
 final = tf.image.resize_images(tf.expand_dims(pred, -1), [600, 800])
 
 config = tf.ConfigProto()
-config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_2
+config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
-BATCH_SIZE=32
+BATCH_SIZE=80
 
-X_arr = np.zeros((BATCH_SIZE, 480, 480, 3), dtype=np.float64)
+X_arr = np.zeros((BATCH_SIZE, 384, 384, 3), dtype=np.float64)
 
 m = video.shape[0]
 with tf.Session(graph=graph, config=config) as session:
   for i in range(0, m, BATCH_SIZE):
     cnt = 0
     for j in range(i, min(i+BATCH_SIZE, m)):
-        X_arr[cnt, :, :, :] = cv2.resize(video[j], (480, 480)).astype(np.float32)
+        X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (384, 384)).astype(np.float32))
         cnt += 1
+
     result = session.run(final, feed_dict={X : X_arr[0:cnt]})
     for x in range(cnt):
       binary_car_result = (result[x, :, :, 0] == 0).astype(np.uint8)

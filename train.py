@@ -2,7 +2,7 @@ import os
 import keras
 import keras.backend as K
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
+from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, TensorBoard
 from keras.optimizers import Adam
 
 smooth = 1.
@@ -99,8 +99,9 @@ def train_nn(model,
   checkpoint = ModelCheckpoint(weight_path, monitor='val_loss', verbose=1,
                                save_best_only=True, mode='min', save_weights_only=True)
   reducelr = ReduceLROnPlateau(monitor='loss', factor=0.8, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=5, min_lr=0.0001)
+  tensorboar = TensorBoard(log_dir='../logs', histogram_freq=0, write_graph=True, write_images=True)
 
-  callbacks_list = [checkpoint, tfckptcb, earlystop, reducelr]
+  callbacks_list = [checkpoint, tfckptcb, earlystop, reducelr, tensorboar]
   history = model.fit_generator(train_gen,
                                 steps_per_epoch=training_size//(batch_size * gpus),
                                 validation_data=valid_gen,

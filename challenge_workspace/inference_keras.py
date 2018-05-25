@@ -27,10 +27,10 @@ answer_key = {}
 # Frame numbering starts at 1
 frame = 1
 
-MODEL_PATH = '/data/model_saved.h5'
+MODEL_PATH = './saved_models/fcn8LowRes/fcn8VGG16LowRes.h5'
 
 K.set_learning_phase(0)
-model = load_model('./saved_models/segnet_extended/segnetExt.h5',
+model = load_model(MODEL_PATH,
                    {'MaxPoolingWithArgmax2D': MaxPoolingWithArgmax2D,
                     'MaxUnpooling2D' : MaxUnpooling2D
                    })
@@ -46,7 +46,7 @@ for i in range(0, m, BATCH_SIZE):
   cnt = 0
   for j in range(i, min(i+BATCH_SIZE, m)):
     video[j] = cv2.cvtColor(video[j], cv2.COLOR_RGB2BGR)
-    X_arr[cnt, :, :, :] = cv2.resize(video[j], (384, 384)).astype(np.float64)
+    X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (384, 384)).astype(np.float64))
     cnt += 1
 
   result = model.predict(X_arr)

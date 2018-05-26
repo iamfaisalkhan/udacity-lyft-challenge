@@ -1,0 +1,3 @@
+v1 image_size=320,416 cross_entropy
+v2 patches, 320, 416 with weighted_cross_entropy
+v3 320x416 full image new data generator cross_entropy

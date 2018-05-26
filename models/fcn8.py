@@ -43,5 +43,5 @@ def model_fcn8(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
 
 
 if __name__ == '__main__':
-  model = model_fcn8(nClasses = 3, image_shape=(576, 800, 3))
+  model = model_fcn8(nClasses = 3, image_shape=(320, 416, 3))
   model.summary()

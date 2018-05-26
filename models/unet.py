@@ -22,25 +22,25 @@ def model_unetVGG16(nClasses=3, image_shape=(320, 416, 3), keep_prob=0.5):
   X = Conv2DTranspose(512, (3, 3), strides=(2, 2), padding='same') (block5_pool)
   bn = BatchNormalization()(block4_pool)
   X = concatenate([X, bn])
-  X = Conv2D(512, (3, 3), activation='relu', padding='same') (X)
+  X = Conv2D(512, (3, 3), kernel_initializer='he_normal', activation='relu', padding='same') (X)
   X = Conv2D(256, (3, 3), activation='relu', padding='same') (X)
 
   X = Conv2DTranspose(256, (3, 3), strides=(2, 2), padding='same') (X)
   bn = BatchNormalization()(block3_pool)
   X = concatenate([X, bn])
-  X = Conv2D(256, (3, 3), activation='relu', padding='same') (X)
-  X = Conv2D(128, (3, 3), activation='relu', padding='same') (X)
+  X = Conv2D(256, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same') (X)
+  X = Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same') (X)
 
   X = Conv2DTranspose(128, (3, 3), strides=(2, 2), padding='same') (X)
   bn = BatchNormalization()(block2_pool)
   X = concatenate([X, bn])
-  X = Conv2D(128, (3, 3), activation='relu', padding='same') (X)
-  X = Conv2D(64, (3, 3), activation='relu', padding='same') (X)
+  X = Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same') (X)
+  X = Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same') (X)
 
   X = Conv2DTranspose(64, (3, 3), strides=(2, 2), padding='same') (X)
   bn = BatchNormalization()(block1_pool)
   X = concatenate([X, bn])
-  X = Conv2D(64, (3, 3), activation='relu', padding='same') (X)
+  X = Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_normal', padding='same') (X)
   # X = Conv2D(32, (3, 3), activation='relu', padding='same')(X)
   #
 

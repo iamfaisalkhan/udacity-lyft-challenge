@@ -5,7 +5,6 @@ import tensorflow as tf
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, TensorBoard
 from keras.optimizers import Adam
 
-smooth = 1.
 def dice_coef(y_true, y_pred):
     y_true_f = K.flatten(y_true)
     y_pred_f = K.flatten(y_pred)
@@ -61,6 +60,17 @@ def jaccard_distance_loss(y_true, y_pred, smooth=100):
   jac = (intersection + smooth) / (sum_ - intersection + smooth)
   return (1 - jac) * smooth
 
+def euclidean_distance_loss(y_true, y_pred):
+    """
+    Euclidean distance loss
+    https://en.wikipedia.org/wiki/Euclidean_distance
+    :param y_true: TensorFlow/Theano tensor
+    :param y_pred: TensorFlow/Theano tensor of the same shape as y_true
+    :return: float
+    """
+    return K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))
+
+
 
 class TFCheckpointCallback(keras.callbacks.Callback):
   def __init__(self, saver, sess, path):
@@ -99,7 +109,12 @@ def train_nn(model,
   checkpoint = ModelCheckpoint(weight_path, monitor='val_loss', verbose=1,
                                save_best_only=True, mode='min', save_weights_only=True)
   reducelr = ReduceLROnPlateau(monitor='loss', factor=0.8, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=5, min_lr=0.0001)
-  tensorboar = TensorBoard(log_dir='../logs', histogram_freq=0, write_graph=True, write_images=True)
+  tensorboard_path = '../../logs/{}'.format(output_path.split('/')[-2])
+
+  if not os.path.exists(tensorboard_path):
+    os.mkdir(tensorboard_path)
+
+  tensorboar = TensorBoard(log_dir=tensorboard_path, histogram_freq=0, write_graph=True, write_images=True)
 
   callbacks_list = [checkpoint, tfckptcb, earlystop, reducelr, tensorboar]
   history = model.fit_generator(train_gen,
@@ -108,7 +123,7 @@ def train_nn(model,
                                 validation_steps=validation_size // (batch_size * gpus),
                                 epochs=epochs,
                                 workers=workers,
-                                use_multiprocessing=True,
+                                #use_multiprocessing=True,
                                 callbacks=callbacks_list
                                 )
 

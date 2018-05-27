@@ -116,7 +116,7 @@ def train_nn(model,
 
   tensorboar = TensorBoard(log_dir=tensorboard_path, histogram_freq=0, write_graph=True, write_images=True)
 
-  callbacks_list = [checkpoint, tfckptcb, earlystop, reducelr, tensorboar]
+  callbacks_list = [checkpoint, earlystop, reducelr, tensorboar]
   history = model.fit_generator(train_gen,
                                 steps_per_epoch=training_size//(batch_size * gpus),
                                 validation_data=valid_gen,

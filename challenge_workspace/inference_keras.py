@@ -25,22 +25,26 @@ answer_key = {}
 # Frame numbering starts at 1
 frame = 1
 
-MODEL_PATH = './saved_models/fcn8/fcn8_v2/model_saved.h5'
+# MODEL_PATH = './saved_models/unet/unet_v2/model_saved.h5'
+MODEL_PATH = './saved_models/fcn8/fcn8_v3/model_saved.h5'
+# MODEL_PATH = './saved_models/fcn8/fcn8LowRes/fcn8VGG16LowRes.h5'
 
 K.set_learning_phase(0)
 model = load_model(MODEL_PATH)
 # model = load_model(MODEL_PATH)
 #
 BATCH_SIZE=32
+IMG_SIZE=(320, 416)
 
-X_arr = np.zeros((BATCH_SIZE, 320, 416, 3), dtype=np.float64)
+X_arr = np.zeros((BATCH_SIZE, IMG_SIZE[0], IMG_SIZE[1], 3), dtype=np.float64)
 
 m = video.shape[0]
 for i in range(0, m, BATCH_SIZE):
   cnt = 0
   for j in range(i, min(i+BATCH_SIZE, m)):
     video[j] = cv2.cvtColor(video[j], cv2.COLOR_RGB2BGR)
-    X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (416, 320)).astype(np.float64))
+    # X_arr[cnt, :, :, :] = preprocess_input(cv2.resize(video[j], (IMG_SIZE[1], IMG_SIZE[0])).astype(np.float64))
+    X_arr[cnt, :, :, :] = cv2.resize(video[j], (IMG_SIZE[1], IMG_SIZE[0]))
     cnt += 1
 
   result = model.predict(X_arr)

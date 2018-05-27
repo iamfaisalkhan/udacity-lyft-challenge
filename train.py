@@ -41,24 +41,14 @@ def weighted_categorical_crossentropy(weights):
     
     return loss
     
-def jaccard_distance_loss(y_true, y_pred, smooth=100):
-  """
-  Jaccard = (|X & Y|)/ (|X|+ |Y| - |X & Y|)
-          = sum(|A*B|)/(sum(|A|)+sum(|B|)-sum(|A*B|))
+def iou_loss(y_true, y_pred, smooth=100):
+  intersection = K.sum(y_true * y_pred, axis=-1)
+  union = K.sum(y_true+y_pred, axis=-1) - intersection+0.000000001
+  mean_iou = 1 - K.mean(intersection/union)
 
-  The jaccard distance loss is usefull for unbalanced datasets. This has been
-  shifted so it converges on 0 and is smoothed to avoid exploding or disapearing
-  gradient.
+  return mean_iou
 
-  Ref: https://en.wikipedia.org/wiki/Jaccard_index
 
-  @url: https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96
-  @author: wassname
-  """
-  intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
-  sum_ = K.sum(K.abs(y_true) + K.abs(y_pred), axis=-1)
-  jac = (intersection + smooth) / (sum_ - intersection + smooth)
-  return (1 - jac) * smooth
 
 def euclidean_distance_loss(y_true, y_pred):
     """

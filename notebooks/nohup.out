@@ -3164,3 +3164,7 @@ totalMemory: 10.92GiB freeMemory: 10.75GiB
 [W 12:13:31.687 NotebookApp] 404 GET /nbextensions/nbpresent/css/nbpresent.min.css (192.168.1.7) 0.98ms referer=https://192.168.1.181:9999/notebooks/fcn8_VGG16/fcn8_v7.ipynb
 [I 12:15:07.577 NotebookApp] Saving file at /fcn8_VGG16/fcn8_v7.ipynb
 [I 12:17:07.577 NotebookApp] Saving file at /fcn8_VGG16/fcn8_v7.ipynb
+[I 12:19:07.577 NotebookApp] Saving file at /fcn8_VGG16/fcn8_v7.ipynb
+[I 12:21:07.577 NotebookApp] Saving file at /fcn8_VGG16/fcn8_v7.ipynb
+[I 12:23:07.576 NotebookApp] Saving file at /fcn8_VGG16/fcn8_v7.ipynb
+[I 12:25:07.578 NotebookApp] Saving file at /fcn8_VGG16/fcn8_v7.ipynb

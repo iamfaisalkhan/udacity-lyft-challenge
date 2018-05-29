@@ -4,7 +4,7 @@ from keras.applications.vgg16 import VGG16
 from keras.layers import Dropout, Conv2D, Cropping2D, ZeroPadding2D, Input, Reshape, Activation, BatchNormalization, UpSampling2D
 from keras.callbacks import ModelCheckpoint
 
-from models.segnet_custom_layers import MaxPoolingWithArgmax2D, MaxUnpooling2D
+from models.segnet_helpers import MaxPoolingWithArgmax2D, MaxUnpooling2D
 
 def model_segnet(nClasses, image_shape=(480, 480, 3), kernel=3, pool_size=(2, 2)):
     inputs = Input(shape=image_shape)

@@ -107,6 +107,16 @@ def train_nn(model,
   tensorboar = TensorBoard(log_dir=tensorboard_path, histogram_freq=0, write_graph=True, write_images=True)
 
   callbacks_list = [checkpoint, earlystop, reducelr, tensorboar]
+  # history = model.fit_generator(train_gen,
+  #                               steps_per_epoch=training_size//(batch_size * gpus),
+  #                               validation_data=valid_gen,
+  #                               validation_steps=validation_size // (batch_size * gpus),
+  #                               epochs=epochs,
+  #                               workers=workers,
+  #                               #use_multiprocessing=True,
+  #                               callbacks=callbacks_list
+  #                               )
+
   history = model.fit_generator(train_gen,
                                 steps_per_epoch=training_size//(batch_size * gpus),
                                 validation_data=valid_gen,
@@ -117,10 +127,10 @@ def train_nn(model,
                                 callbacks=callbacks_list
                                 )
 
-  tf.train.write_graph(tf_graph.as_graph_def(),
-                       freeze_path, 'graph.pbtxt', as_text=True)
-  tf.train.write_graph(tf_graph.as_graph_def(),
-                       freeze_path, 'graph.pb', as_text=False)
+  # tf.train.write_graph(tf_graph.as_graph_def(),
+  #                      freeze_path, 'graph.pbtxt', as_text=True)
+  # tf.train.write_graph(tf_graph.as_graph_def(),
+  #                      freeze_path, 'graph.pb', as_text=False)
 
   return history
 

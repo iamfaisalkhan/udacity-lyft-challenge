@@ -23,12 +23,13 @@ files.sort()
 tmp = imread(files[0])
 m = len(files)
 
-data = np.empty((m, *tmp.shape))
+# data = np.empty((m, *tmp.shape))
 
+data = []
 for ind, file in enumerate(files):
-  data[ind] = imread(file)
+  data.append(imread(file))
 
-skvideo.io.vwrite("video.mp4", data)
+skvideo.io.vwrite("video.mp4", np.array(data))
 
 files = glob.glob("%s/CameraSeg/*.png"%path)
 files.sort()

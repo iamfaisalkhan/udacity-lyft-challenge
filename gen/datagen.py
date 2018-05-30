@@ -102,19 +102,20 @@ def augment_brightness_camera_images(image):
 
     return image1
 
-def random_mask(X, Y, shape=(64, 128)):
+def random_mask(X, Y, shape=(10, 10)):
   c, r, _= X.shape
 
-  x0 = np.random.randint(c-300, c-100)
-  y0  = np.random.randint(0, r-shape[1])
+  for i in range(3):
+    x0 = np.random.randint(c-400, c-100)
+    y0  = np.random.randint(0, r-shape[1])
 
-  X[x0:x0+shape[0], y0:y0+shape[1], :] = 0
-  Y[x0:x0+shape[0], y0:y0+shape[1], :] = 0
+    X[x0:x0+shape[0], y0:y0+shape[1], :] = 0
+    Y[x0:x0+shape[0], y0:y0+shape[1], :] = 0
 
   return X, Y
 
 def random_transform(X, Y, tran=10, rot=15, shear=5):
-    rows,cols,_ = X.shape    
+    rows,cols,chs = X.shape
     
     if np.random.uniform() > 0.5:
       cv2.flip(X, 0)
@@ -142,6 +143,11 @@ def random_transform(X, Y, tran=10, rot=15, shear=5):
 
     X = augment_brightness_camera_images(X)
 
+    # Random gauss noise
+    # gauss = np.random.normal(0.0, 0.1**0.5, (rows, cols, chs))
+    # gauss = gauss.reshape(rows, cols, chs)
+    # X = X + gauss
+
     return X.astype(np.uint8), Y.astype(np.uint8)
 
 def _cluster_train_set(df):
@@ -157,12 +163,12 @@ def _cluster_train_set(df):
   weights = [float(i)/sum(weights) for i in weights]
   c = sorted(zip(weights, ind))
     
-  minor_cls_ind = [i[1] for i in reversed(c[-2000:]) ]
-  major_cls_ind = [i[1] for i in c[0:2000]]
+  minor_cls_ind = [i[1] for i in reversed(c[-4000:]) ]
+  major_cls_ind = [i[1] for i in c[0:1000]]
     
   return minor_cls_ind, major_cls_ind
 
-def oversample_generator_from_df(df, batch_size, target_size, samples=1000, frac=0.9):
+def oversample_generator_from_df(df, batch_size, target_size, samples=4000, frac=0.8):
 
   count =1
   epoch = 0

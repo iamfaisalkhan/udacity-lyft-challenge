@@ -37,7 +37,6 @@ def preprocess_multi_label(lbl):
   new_lbl[:, :, 10] = (lbl[:, :, 0] == 12).astype(np.uint8)
   new_lbl[:, :, 11] = (lbl[:, :, 0] == 0).astype(np.uint8)
 
-  # new_lbl[:, :, 2] = np.invert(np.logical_or(new_lbl[:, :, 0], new_lbl[:, :, 1])).astype(np.uint8)
   return new_lbl
 
 def preprocess_label(lbl):
@@ -106,7 +105,7 @@ def  gen_func(in_df, rgb_gen, lab_gen, image_size = (480, 480), target_size = (4
     i = 0
     for i in range(m):
       x_new[i] = cv2.resize(x[i], (target_size[1], target_size[0]))
-      y_new[i, :, :, :] = cv2.resize(y[i], (target_size[1], target_size[0]))
+      y_new[i] = cv2.resize(preprocess_label(y[i]), (target_size[1], target_size[0]))
       i += 1
     yield x_new, y_new
 

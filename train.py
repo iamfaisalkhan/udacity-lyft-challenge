@@ -123,7 +123,7 @@ def train_nn(model,
                                 validation_steps=validation_size // (batch_size * gpus),
                                 epochs=epochs,
                                 workers=workers,
-                                #use_multiprocessing=True,
+                                use_multiprocessing=True,
                                 callbacks=callbacks_list
                                 )
 

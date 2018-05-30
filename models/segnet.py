@@ -131,8 +131,9 @@ def model_segnet(nClasses, image_shape=(480, 480, 3), kernel=3, pool_size=(2, 2)
 def model_segnetVGG16(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
   base_model = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
 
-  # for layer in base_model.layers:
-  #   layer.trainable = False
+  for layer in base_model.layers:
+    if not layer.name[0:6] == 'block5':
+      layer.trainable = False
 
   block5_pool = base_model.get_layer('block5_pool').output
 
@@ -184,6 +185,7 @@ def model_segnetVGG16(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
 
   X = Conv2D( nClasses , (1, 1) , padding='valid')(X)
   X = BatchNormalization()(X)
+  # X = (Reshape((-1, nClasses)))(X)
   X = Activation('softmax', name='y_')(X)
 
   model = Model(inputs=[base_model.input] , outputs=[X])

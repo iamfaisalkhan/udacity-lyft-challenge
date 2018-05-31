@@ -2,7 +2,10 @@ import os
 import keras
 import keras.backend as K
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, TensorBoard
+import numpy as np
+
+from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
+from keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, TensorBoard
 from keras.optimizers import Adam
 
 def dice_coef(y_true, y_pred):
@@ -71,6 +74,31 @@ class TFCheckpointCallback(keras.callbacks.Callback):
   def on_epoch_end(self, epoch, logs=None):
     self.saver.save(self.sess, "{}/freeze/checkpoint.ckpt".format(self.path), global_step=epoch)
 
+# class F1Score(keras.callbacks.Callback):
+#   def __init__(self, )
+#   def on_train_begin(self, logs={}):
+#     self.val_f1s = []
+#     self.val_recalls = []
+#     self.val_precisions = []
+ 
+#   def on_epoch_end(self, epoch, logs={}):
+#     # if not epoch % 5:
+#     #   return
+#     print (self.model.validation_data)
+    # print (" - val_shape %d"%self.model.validation_data .shape)
+    # val_predict = (np.asarray(self.model.predict(self.model.validation_data[0][0]))).round()
+    # val_targ = self.model.validation_data[1][0]
+    # _val_f1 = f1_score(val_targ, val_predict)
+    # _val_recall = recall_score(val_targ, val_predict)
+    # _val_precision = precision_score(val_targ, val_predict)
+
+    # self.val_f1s.append(_val_f1)
+    # self.val_recalls.append(_val_recall)
+    # self.val_precisions.append(_val_precision)
+    
+    # print ("val_f1: %f — val_precision: %f — val_recall %f" %(_val_f1, _val_precision, _val_recall))
+    
+    return
 
 def train_nn(model,
             train_gen, 
@@ -93,6 +121,10 @@ def train_nn(model,
   tf_graph = sess.graph
   tf_saver = tf.train.Saver()
   tfckptcb = TFCheckpointCallback(tf_saver, sess, output_path)
+
+  # train_df, valid_df, test_df = load_data('../../data')
+
+  # f1score = F1Score(valid_df)
 
   # Call backs
   earlystop = EarlyStopping(monitor="val_loss", mode="min", patience=30)
@@ -123,7 +155,7 @@ def train_nn(model,
                                 validation_steps=validation_size // (batch_size * gpus),
                                 epochs=epochs,
                                 workers=workers,
-                                use_multiprocessing=True,
+                                # use_multiprocessing=True,
                                 callbacks=callbacks_list
                                 )
 

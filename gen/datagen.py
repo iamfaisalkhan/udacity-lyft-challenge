@@ -84,8 +84,11 @@ def balanced_generator_from_df(df, batch_size, target_size):
       seed = np.random.choice(range(1000))
       sub = df.iloc[i:j]
 
-      X = np.array([cv2.resize(imread(f)[200:, :, :], (target_size[1], target_size[0])) for f in sub.image], np.uint8)
-      Y = np.array([cv2.resize(preprocess_label(imread(f))[200:, :, :], (target_size[1], target_size[0])) for f in sub.label], np.uint8)
+      # X = np.array([cv2.resize(imread(f)[184:, :, :], (target_size[1], target_size[0])) for f in sub.image], np.uint8)
+      # Y = np.array([cv2.resize(preprocess_label(imread(f))[184:, :, :], (target_size[1], target_size[0])) for f in sub.label], np.uint8)
+
+      X = np.array([imread(f)[184:, :, :] for f in sub.image], np.uint8)
+      Y = np.array([preprocess_label(imread(f))[184:, :, :] for f in sub.label], np.uint8)      
 
       yield X, Y
 
@@ -102,19 +105,22 @@ def augment_brightness_camera_images(image):
 
     return image1
 
-def random_mask(X, Y, shape=(10, 10)):
+def random_mask(X, Y, shape=(16, 16)):
   c, r, _= X.shape
 
-  for i in range(3):
-    x0 = np.random.randint(c-400, c-100)
-    y0  = np.random.randint(0, r-shape[1])
+  for i in range(5):
 
-    X[x0:x0+shape[0], y0:y0+shape[1], :] = 0
-    Y[x0:x0+shape[0], y0:y0+shape[1], :] = 0
+    x0 = np.random.randint(c-300, c-100)
+    y0  = np.random.randint(0, r-shape[1])
+    w = np.random.randint(0, shape[0])
+    h = np.random.randint(0, shape[1]) 
+
+    X[x0:x0+w, y0:y0+h, :] = 0
+    Y[x0:x0+w, y0:y0+h, :] = 0
 
   return X, Y
 
-def random_transform(X, Y, tran=10, rot=15, shear=5):
+def random_transform(X, Y, tran=6, rot=6, shear=1):
     rows,cols,chs = X.shape
     
     if np.random.uniform() > 0.5:
@@ -125,28 +131,23 @@ def random_transform(X, Y, tran=10, rot=15, shear=5):
     ty = tran * np.random.uniform() - tran/2
     
     transMat = np.float32([[1, 0, tx], [0, 1, ty]])
-    X = cv2.warpAffine(X, transMat, (cols,rows))
-    Y = cv2.warpAffine(Y, transMat, (cols,rows))
+    X = cv2.warpAffine(X, transMat, (cols,rows), cv2.BORDER_REFLECT)
+    Y = cv2.warpAffine(Y, transMat, (cols,rows), cv2.BORDER_REFLECT)
     
     ang_rot = np.random.uniform(rot)-rot/2
     rot_M = cv2.getRotationMatrix2D((cols/2,rows/2), ang_rot, 1)
-    X = cv2.warpAffine(X, rot_M,( cols,rows) )
-    Y = cv2.warpAffine(Y, rot_M,( cols,rows) )
+    X = cv2.warpAffine(X, rot_M,( cols,rows), cv2.BORDER_REFLECT )
+    Y = cv2.warpAffine(Y, rot_M,( cols,rows), cv2.BORDER_REFLECT)
 
     pt1 = 5+shear*np.random.uniform()-shear/2
     pt2 = 20+shear*np.random.uniform()-shear/2
     pts1 = np.float32([[5,5],[20,5],[5,20]])
     pts2 = np.float32([[pt1,5],[pt2,pt1],[5,pt2]])
     shear_M = cv2.getAffineTransform(pts1,pts2)
-    X = cv2.warpAffine(X, shear_M, (cols,rows))
-    Y = cv2.warpAffine(Y, shear_M, (cols,rows))
+    X = cv2.warpAffine(X, shear_M, (cols,rows), cv2.BORDER_REFLECT)
+    Y = cv2.warpAffine(Y, shear_M, (cols,rows), cv2.BORDER_REFLECT)
 
     X = augment_brightness_camera_images(X)
-
-    # Random gauss noise
-    # gauss = np.random.normal(0.0, 0.1**0.5, (rows, cols, chs))
-    # gauss = gauss.reshape(rows, cols, chs)
-    # X = X + gauss
 
     return X.astype(np.uint8), Y.astype(np.uint8)
 
@@ -202,15 +203,19 @@ def oversample_generator_from_df(df, batch_size, target_size, samples=4000, frac
       i = 0
       for image, label in cluster_minor:
         x, y = random_transform(imread(image), preprocess_label(imread(label)))
-        X[i] = cv2.resize(x[200:, :, :], (target_size[1], target_size[0]))
+        X[i] = x[184:, :, :]
+        # X[i] = cv2.resize(x[184:, :, :], (target_size[1], target_size[0]))
         y[:, :, 2] = np.invert(np.logical_or(y[:, :, 0], y[:, :, 1])).astype(np.uint8)
-        Y[i] = cv2.resize(y[200:, :, :], (target_size[1], target_size[0]))
+        Y[i] = y[184:, :, :]
+        # Y[i] = cv2.resize(y[184:, :, :], (target_size[1], target_size[0]))
         i += 1
 
       for image, label in cluster_major:
         x, y = random_mask(imread(image), preprocess_label(imread(label)))
-        X[i] = cv2.resize(x[200:, :, :], (target_size[1], target_size[0]))
-        Y[i] = cv2.resize(y[200:, :, :], (target_size[1], target_size[0]))
+        # X[i] = cv2.resize(x[184:, :, :], (target_size[1], target_size[0]))
+        # Y[i] = cv2.resize(y[184:, :, :], (target_size[1], target_size[0]))
+        X[i] = x[184:, :, :]
+        Y[i] = y[184:, :, :]
         i += 1
 
       yield X, Y

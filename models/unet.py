@@ -66,51 +66,54 @@ def model_unetVGG16_v1(nClasses=3, image_shape=(320, 416, 3), keep_prob=0.5):
   return model
 
 
-# def model_unetVGG16_v2(nClasses=3, image_shape=(320, 416, 3)):
-#   base_model = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
+def model_unetVGG16_v2(nClasses=3, image_shape=(320, 416, 3)):
+  base_model = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
 
-#   for layer in base_model.layers:
-#     layer.trainable = False
+  for layer in base_model.layers:
+    layer.trainable = False
 
-#   block1_pool = base_model.get_layer('block1_pool').output
-#   block2_pool = base_model.get_layer('block2_pool').output
-#   block3_pool = base_model.get_layer('block3_pool').output
-#   block4_pool = base_model.get_layer('block4_pool').output
+  block1_conv2 = base_model.get_layer('block1_conv2').output
+  block2_conv2 = base_model.get_layer('block2_conv2').output
+  block3_conv3 = base_model.get_layer('block3_conv3').output
+  block4_conv3 = base_model.get_layer('block4_conv3').output
+  block4_pool = base_model.get_layer('block4_pool').output
 
-#   X = Conv2D(512, (3, 3), activation='relu', padding='valid') (block4_pool)
-#   X + BatchNormalization()(X)
+  X = Conv2D(1024, (3, 3), activation='relu', padding='same') (block4_pool)
+  X = Conv2D(1024, (3, 3), activation='relu', padding='same') (X)
+  X + BatchNormalization()(X)
 
-#   X = Conv2DTranspose(512, (3, 3), strides=(2, 2), padding='same') (X)
-#   X = concatenate([X, block3_pool])
-#   X = Conv2D(256, (3, 3), activation='relu', padding='valid') (X)
-#   X = BatchNormalization()(X)
+  X = Conv2DTranspose(512, (2, 2), strides=(2, 2), padding='same') (X)
+  X = concatenate([X, block4_conv3])
+  X = Conv2D(512, (3, 3), activation='relu', padding='same') (X)
+  X = Conv2D(512, (3, 3), activation='relu', padding='same') (X)
+  X = BatchNormalization()(X)
   
-#   X = Conv2DTranspose(256, (3, 3), strides=(2, 2), padding='same') (X)
-#   X = concatenate([X, block2_pool])
-#   X = Conv2D(256, (3, 3), padding='valid')
-#   X = Conv2D(128, (3, 3), padding='valid')
-#   X = BatchNormalization()(X)
+  X = Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same') (X)
+  X = concatenate([X, block3_conv3])
+  X = Conv2D(256, (3, 3), activation='relu', padding='same') (X)
+  X = Conv2D(256, (3, 3), activation='relu', padding='same') (X)
+  X = BatchNormalization()(X)
 
-#   X = Conv2DTranspose(128, (3, 3), strides=(2, 2), padding='same') (X)
-#   X = concatenate([X, block1_pool])
-#   X = Conv2D(128, (3, 3), activation='relu',padding='same') (X)
-#   X = Conv2D(64, (3, 3), activation='relu', padding='same') (X)
+  X = Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same') (X)
+  X = concatenate([X, block2_conv2])
+  X = Conv2D(128, (3, 3), activation='relu',padding='same') (X)
+  X = Conv2D(128, (3, 3), activation='relu', padding='same') (X)
+  X = BatchNormalization()(X)
 
-#   X = Conv2DTranspose(64, (3, 3), strides=(2, 2), padding='same') (X)
-#   bn = BatchNormalization()(block1_pool)
-#   X = concatenate([X, bn])
-#   X = Conv2D(64, (3, 3), activation='relu',  padding='same') (X)
-#   X = Conv2D(32, (3, 3), activation='relu', padding='same')(X)
-#   #
+  X = Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same') (X)
+  X = concatenate([X, block1_conv2])
+  X = Conv2D(64, (3, 3), activation='relu', padding='same')(X)
+  X = Conv2D(64, (3, 3), activation='relu', padding='same')(X)
+  X = BatchNormalization()(X)
 
-#   X = Conv2DTranspose(nClasses, (3, 3), strides=(2, 2), padding='same') (X)
-#   X = Conv2D(nClasses, (1, 1), padding='same')(X)
+  # X = Conv2DTranspose(nClasses, (3, 3), strides=(2, 2), padding='same') (X)
+  X = Conv2D(nClasses, (1, 1), padding='same')(X)
 
-#   X = (Activation('softmax', name='y_'))(X)
+  X = (Activation('softmax', name='y_'))(X)
   
-#   model = Model(inputs=[base_model.input], outputs=[X])
+  model = Model(inputs=[base_model.input], outputs=[X])
 
-#   return model
+  return model
 
 def model_unet_v2(nClasses=3, image_shape=(320, 416, 3), keep_prob=0.5):
   base_input = Input(image_shape)

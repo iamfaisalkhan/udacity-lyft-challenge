@@ -41,6 +41,31 @@ def model_fcn8(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
 
   return model
 
+def model_fcn8_atrous(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
+    base_model = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
+
+    for layer in base_model.layers:
+      layer.trainable = False
+
+    block3_pool = base_model.get_layer('block3_pool').output
+    block4_pool = base_model.get_layer('block4_pool').output
+    block5_pool = base_model.get_layer('block5_pool').output
+
+      # Convolutional layers transfered from fully-connected layers
+    X = Conv2D(4096, (7, 7), activation='relu', padding='same', dilation_rate=(2, 2))(block5_pool)
+    x = Dropout(keep_prob)(X)
+    X = Conv2D(4096, (1, 1), activation='relu', padding='same')(X)
+    X = Dropout(keep_prob)(X)
+    
+
+    X = Conv2D(nClasses, (1, 1), kernel_initializer='he_normal', padding='valid', strides=(1, 1))(X)
+
+    X = BilinearUpSampling2D(target_size=tuple(image_shape))(X)
+
+    model = Model(inputs = [base_model.input], outputs=[X])
+
+    return model
+
 
 if __name__ == '__main__':
   model = model_fcn8(nClasses = 3, image_shape=(320, 416, 3))

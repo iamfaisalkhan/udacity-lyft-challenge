@@ -27,13 +27,12 @@ answer_key = {}
 # Frame numbering starts at 1
 frame = 1
 
-MODEL_PATH = './saved_models/fcn8/fcn8_v12/model_saved.h5'
+MODEL_PATH = './saved_models/unet/unet_v8/model_saved.h5'
 
 K.set_learning_phase(0)
 model = load_model(MODEL_PATH)
-# model = load_model(MODEL_PATH)
 #
-BATCH_SIZE=32
+BATCH_SIZE=8
 IMG_SIZE=(416, 544)
 
 X_arr = np.zeros((BATCH_SIZE, IMG_SIZE[0], IMG_SIZE[1], 3), dtype=np.float32)

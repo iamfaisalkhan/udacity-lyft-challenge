@@ -7,6 +7,9 @@ from keras.callbacks import ModelCheckpoint
 from models.segnet_helpers import MaxPoolingWithArgmax2D, MaxUnpooling2D
 
 def model_segnet(nClasses, image_shape=(480, 480, 3), kernel=3, pool_size=(2, 2)):
+    '''
+        From https://github.com/ykamikawa/SegNet/blob/master/Mylayers.py
+    '''
     inputs = Input(shape=image_shape)
 
     conv_1 = Conv2D(64, (kernel, kernel), padding="same")(inputs)
@@ -128,11 +131,11 @@ def model_segnet(nClasses, image_shape=(480, 480, 3), kernel=3, pool_size=(2, 2)
 
     return segnet
 
-def model_segnetVGG16(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
+def model_segnetVGG16(nClasses, image_shape=(480, 480, 3)):
   base_model = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
 
   for layer in base_model.layers:
-    if not layer.name[0:6] == 'block5':
+    # if not layer.name[0:6] == 'block5':
       layer.trainable = False
 
   block4_pool = base_model.get_layer('block4_pool').output
@@ -140,7 +143,7 @@ def model_segnetVGG16(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
 
   # Decoder follows
   X = UpSampling2D( (2,2))(block5_pool)
-  X = Conv2D(512, (3, 3), padding='same')(block5_pool)
+  X = Conv2D(512, (3, 3), padding='same')(X)
   X = BatchNormalization()(X)
   X = Activation('relu')(X)
   X = Conv2D(512, (3, 3), padding='same')(X)
@@ -184,7 +187,7 @@ def model_segnetVGG16(nClasses, image_shape=(480, 480, 3), keep_prob=0.5):
   X = Activation('relu')(X)
   X = BatchNormalization()(X)
 
-  X = BatchNormalization()(X)
+  X = Conv2D( nClasses , (1, 1) , padding='valid')(X)
   X = Activation('softmax', name='y_')(X)
 
   model = Model(inputs=[base_model.input], outputs=[X])
